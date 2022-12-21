@@ -4,9 +4,9 @@
 # 3 : Subdomain in use
 # 1 : Failed in serving
 
-# nginx_config_path="/etc/nginx/sites-available/qdply"
+nginx_config_path="/etc/nginx/sites-available/qdply"
 # Testing
-nginx_config_path="/Users/rishi/projects/qdply-core/nginx-config/qdply"
+# nginx_config_path="/Users/rishi/projects/qdply-core/nginx-config/qdply"
 
 backup_path="$HOME/backup"
 dt=$(date '+%d/%m/%Y %H:%M:%S');

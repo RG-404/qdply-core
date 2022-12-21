@@ -42,7 +42,7 @@ def upload_file():
         folder = os.path.join(
             app.config['UPLOAD_FOLDER'], os.path.dirname(files[0].filename))
 
-        print(f"running sudo ../qdply -n {projectName} -f {folder} -t {projectType}")
+        print(f"running sudo ../qdply -n \"{projectName}\" -f {folder} -t \"{projectType}\"")
         shellOutput = os.system(f"sudo ../qdply -n {projectName} -f  -t {projectType}")
         if shellOutput == 3:
             data['message'] = "Subdomain already in use. Please enter a different unique name."
@@ -51,9 +51,9 @@ def upload_file():
 
         return render_template('uploaded.html', data=data)
 
-    serverNameList = getHostedServerNames("/Users/rishi/projects/qdply-core/nginx-config/qdply")
+    serverNameList = getHostedServerNames("/etc/nginx/sites-available/qdply")
     return render_template('index.html', data=serverNameList)
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=4040)
+    app.run(debug=True, host="0.0.0.0", port=3000)
