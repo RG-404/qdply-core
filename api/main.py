@@ -42,8 +42,12 @@ def upload_file():
         folder = os.path.join(
             app.config['UPLOAD_FOLDER'], os.path.dirname(files[0].filename))
 
-        print(f"running sudo ../qdply -n \"{projectName}\" -f {folder} -t \"{projectType}\"")
-        shellOutput = os.system(f"sudo ../qdply -n {projectName} -f {folder} -t {projectType}")
+        new_name = os.path.join(app.config['UPLOAD_FOLDER'], projectName)
+
+        os.rename(folder, new_name)
+
+        print(f"running sudo ../qdply -n \"{projectName}\" -f {new_name} -t \"{projectType}\"")
+        shellOutput = os.system(f"sudo ../qdply -n {projectName} -f {new_name} -t {projectType}")
         if shellOutput == 3:
             data['message'] = "Subdomain already in use. Please enter a different unique name."
         elif shellOutput == 1:
