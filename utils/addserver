@@ -1,6 +1,13 @@
 #!/bin/sh
 
+# Error Codes
+# 3 : Subdomain in use
+# 1 : Failed in serving
+
+# nginx_config_path="/etc/nginx/sites-available/qdply"
+# Testing
 nginx_config_path="/Users/rishi/projects/qdply-core/nginx-config/qdply"
+backup_path="$HOME/backup"
 dt=$(date '+%d/%m/%Y %H:%M:%S');
 
 helpFunction()
@@ -9,24 +16,22 @@ helpFunction()
    echo "Usage: $0 -a name -b path -c port"
    echo -e "\t-n Description of what is name"
    echo -e "\t-f Description of what is path"
-   echo -e "\t-p Description of what is port"
    echo -e "\t-t Description of what is type"
    exit 1 # Exit script after printing help
 }
 
-while getopts "n:f:p:t:" opt
+while getopts "n:f:t:" opt
 do
    case "$opt" in
       n ) name="$OPTARG" ;;
       f ) path="$OPTARG" ;;
-      p ) port="$OPTARG" ;;
       t ) type="$OPTARG" ;;
       ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
    esac
 done
 
 # Print helpFunction in case parameters are empty
-if [ -z "$name" ] && [ -z "$path" ] && [ -z "$port" ] && [ -z "$type" ]
+if [ -z "$name" ] && [ -z "$path" ] && [ -z "$type" ]
 then
    echo "Some or all of the parameters are empty";
    helpFunction
@@ -34,81 +39,123 @@ fi
 
 # Begin script 
 
-is_subdomain_available=true
-is_port_available=true
+echo "Starting Script..."
+echo "$dt"
+echo "
+ ██████╗       ██████╗ ██████╗ ██╗  ██╗   ██╗     ██████╗██╗     ██╗
+██╔═══██╗      ██╔══██╗██╔══██╗██║  ╚██╗ ██╔╝    ██╔════╝██║     ██║
+██║   ██║█████╗██║  ██║██████╔╝██║   ╚████╔╝     ██║     ██║     ██║
+██║▄▄ ██║╚════╝██║  ██║██╔═══╝ ██║    ╚██╔╝      ██║     ██║     ██║
+╚██████╔╝      ██████╔╝██║     ███████╗██║       ╚██████╗███████╗██║
+ ╚══▀▀═╝       ╚═════╝ ╚═╝     ╚══════╝╚═╝        ╚═════╝╚══════╝╚═╝
+                                                                                                                                                   
+"
+echo 
+
+# taking backup of NGINX qdply 
+if [ ! -d $backup_path ]; then
+  mkdir -p $backup_path;
+fi
+cp $nginx_config_path $backup_path/qdploy-backup
+
+is_subdomain_available=1
+# is_port_available=1
 
 # checks if subdomain already in use
 subdomain_preexist=`cat $nginx_config_path \
 | grep $name.qdply.com`
 n=${#subdomain_preexist}
 
-if [ $n == 0 ]
+if [ $n -eq 0 ]
 then 
    echo "Name checked..."
    echo "Proceedingd..."
 else 
-   echo "Subdomain already taken"
-   is_subdomain_available=false
+   is_subdomain_available=0
 fi
 
-# checks if port already in use
-port_preexist=`cat $nginx_config_path \
-| grep localhost:$port`
-n=${#port_preexist}
+port=$(cat $nginx_config_path | grep 'localhost:[0-9]*' | grep -Eo '[0-9]{1,4}' | sort -n | tail -n 1)
+port=$((port+1))
 
-if [ $n == 0 ]
-then 
-   echo "Port checked..."
-   echo "Proceedingd..."
-else 
-   echo "Port already taken"
-   is_port_available=true
-fi
 
-if [ $type == "react" ]
-then
-    echo "Staring REACT BUILD...."
-    npm --prefix $path run build
-    echo "Serving using pm2...."
-    pm2 serve "$path/build" $port --name "$name-r" --spa
-    return 0
-elif [ $type == "static" ]
-then
-    echo "Serving static files using pm2..."
-    pm2 serve $path $port --name "$name-s"
-    return 0
-else 
-    return 13
-fi
+react_type="react"
+pm2_script_name=""
+is_serve_fail=0 # 0 is good
+is_nginx_fail=0 # 0 is good
 
 # add if port already in use
-if [ $is_port_available == true ] && [ $is_subdomain_available == true ]
+if [ $is_subdomain_available -eq 1 ]
 then
-   echo >> $nginx_config_path
-   echo "
-   # Timestamp: $dt
-   server {
-         listen 80;
-
-         server_name $name.qdply.com;
-
-         location / {
-                  proxy_set_header Upgrade \$http_upgrade;
-                  proxy_set_header Connection 'upgrade';
-                  proxy_set_header Host \$host;
-                  proxy_set_header X-Real-IP \$remote_addr;
-                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto \$scheme;
-                  proxy_pass http://localhost:$port;
-         }
-   }" >> $nginx_config_path
-   nginx -t
-   if [ $? == 0 ]
+   echo "Checkes passed..."
+   echo "Attempting deployment on port $port..."
+   if [ "$type" = "$react_type" ]
    then
-      systemctl restart nginx
-      systemctl status nginx
+      echo "Staring REACT BUILD...."
+      npm --prefix $path run build
+      echo "Serving using pm2...."
+      pm2_script_name="$name-r"
+      pm2 serve "$path/build" $port --name $pm2_script_name --spa
+      is_serve_fail=$?
+      pm2 save
+   elif [ $type -eq "static" ]
+   then
+      echo "Serving static files using pm2..."
+      pm2_script_name="$name-s"
+      pm2 serve $path $port --name $pm2_script_name
+      is_serve_fail=$?
+      pm2 save
    fi
-   echo "Check http://$name.deploy.com"
-else
-   echo "Failed"
+   if [ $is_serve_fail -eq 0 ]
+   then
+      echo "pm2 serve completed"
+      echo >> $nginx_config_path
+      echo >> $nginx_config_path
+      echo "# Timestamp: $dt
+server {
+      listen 80;
+
+      server_name $name.qdply.com;
+
+      location / {
+               proxy_set_header Upgrade \$http_upgrade;
+               proxy_set_header Connection 'upgrade';
+               proxy_set_header Host \$host;
+               proxy_set_header X-Real-IP \$remote_addr;
+               proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+               proxy_set_header X-Forwarded-Proto \$scheme;
+               proxy_pass http://localhost:$port;
+      }
+}" >> $nginx_config_path
+      nginx -t
+      if [ $? -eq 0 ]
+      then
+         echo "NGINX config tests passed"
+         systemctl restart nginx
+         systemctl status nginx
+      else 
+         echo "NGINX config tests failed"
+      fi
+      echo "Check http://$name.deploy.com"
+      is_nginx_fail=1
+   else 
+      echo "pm2 serve failed"
+      is_serve_fail=1
+   fi
+else 
+   echo "ERROR: Subdomain already in use"
+   exit 3
+fi
+
+if [ $is_serve_fail -ne 0 ] || [ $is_nginx_fail -ne 0 ]
+then
+   echo "ERROR: Script Failed"
+   echo "Rolling back actions..."
+   if [ $is_serve_fail -eq 0 ]
+   then
+      echo "Stopping and deleting pm2 script..."
+      pm2 delete $pm2_script_name
+   fi
+   cat $backup_path/qdploy-backup > $nginx_config_path 
+   echo "Server config file restored"
+   exit 1
 fi
