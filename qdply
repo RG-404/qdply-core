@@ -132,8 +132,7 @@ server {
       if [ $? -eq 0 ]
       then
          echo "NGINX config tests passed"
-         systemctl restart nginx
-         systemctl status nginx
+         nginx -s reload
       else 
          echo "NGINX config tests failed"
       fi
