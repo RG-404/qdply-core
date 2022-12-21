@@ -55,7 +55,7 @@ def upload_file():
 
         return render_template('uploaded.html', data=data)
 
-    serverNameList = getHostedServerNames("/etc/nginx/sites-available/qdply")
+    serverNameList = getHostedServerNames("/Users/rishi/projects/qdply-core/nginx-config/qdply")
     return render_template('index.html', data=serverNameList)
 
 
