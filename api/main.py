@@ -27,7 +27,8 @@ def upload_file():
         data = {'message': 'Successfully uploaded'}
         files = request.files.getlist("file[]")
         projectName = request.form['projectName']
-        print(projectName)
+        projectType = request.form['type']
+        print(projectName, projectType)
 
         for file in files:
             path = os.path.dirname(file.filename)
@@ -38,11 +39,11 @@ def upload_file():
                 os.path.basename(file.filename)))
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-            shellOutput = os.system.command("")
-            if shellOutput == 3:
-                data['message'] = "Subdomain already in use. Please enter a different unique name."
-            elif shellOutput == 1:
-                data['message'] = "Serve process failed. Please try again."
+            # shellOutput = os.system.command("")
+            # if shellOutput == 3:
+            #     data['message'] = "Subdomain already in use. Please enter a different unique name."
+            # elif shellOutput == 1:
+            #     data['message'] = "Serve process failed. Please try again."
 
         return render_template('uploaded.html', data=data)
 

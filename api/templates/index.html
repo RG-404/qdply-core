@@ -1,26 +1,68 @@
 <!doctype html>
 <html>
 
-<title>Upload new File</title>
+<head>
+    <title>Upload new File</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        p {
+            padding: 0 1rem;
+        }
+
+        form {
+            padding: 1rem;
+            background-color: aliceblue;
+        }
+
+        .hostedsites {
+            background-color: rgb(226, 239, 234);
+            padding: 1rem;
+        }
+
+        .button {
+            padding: 0.5rem;
+            background-color: rgb(100, 143, 195);
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
 
 <body>
-    <h1>Hosted Sites</h1>
-    <ul>
-        {% for item in data %}
-        <li><a target="_blank" href="http://{{item}}">{{item}}</a></li>
-        {% endfor %}
-    </ul>
-    <h1>Upload new File</h1>
-    <form action='' method="POST" enctype="multipart/form-data">
-        <p>
-            <input type="file" name="file[]" webkitdirectory="" directory="">
-        </p>
-        <p>
-            <label>Enter a unique name for the project : </label>
-            <input type="text" name="projectName" placeholder="Type here..." />
-        </p>
-        <input type='submit' value='Upload'>
-    </form>
+    <div>
+        <h1>Hosted Sites</h1>
+        <ul class="hostedsites">
+            {% for item in data %}
+            <li><a target="_blank" href="http://{{item}}">{{item}}</a></li>
+            {% endfor %}
+        </ul>
+        <h1>Upload new File</h1>
+        <form action='' method="POST" enctype="multipart/form-data">
+            <p>
+                <input type="file" name="file[]" webkitdirectory="" directory="">
+            </p>
+            <p>
+                <label>Enter a unique name for the project : </label>
+                <input type="text" name="projectName" placeholder="Type here..." />
+            </p>
+            <p>
+                <label>Select project type:</label>
+            </p>
+            <p>
+                <input type="radio" id="react" name="type" value="react">
+                <label for="react">react</label><br>
+                <input type="radio" id="static" name="type" value="static">
+                <label for="static">static</label><br>
+            </p>
+            <input type='submit' class="button" value='Upload'>
+        </form>
+    </div>
 </body>
 
 </html>
