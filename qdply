@@ -4,9 +4,10 @@
 # 3 : Subdomain in use
 # 1 : Failed in serving
 
-# nginx_config_path="/etc/nginx/sites-available/qdply"
+nginx_config_path="/etc/nginx/sites-available/qdply"
 # Testing
-nginx_config_path="/Users/rishi/projects/qdply-core/nginx-config/qdply"
+# nginx_config_path="/Users/rishi/projects/qdply-core/nginx-config/qdply"
+
 backup_path="$HOME/backup"
 dt=$(date '+%d/%m/%Y %H:%M:%S');
 
@@ -79,6 +80,7 @@ port=$((port+1))
 
 
 react_type="react"
+static_type="static"
 pm2_script_name=""
 is_serve_fail=0 # 0 is good
 is_nginx_fail=0 # 0 is good
@@ -97,7 +99,7 @@ then
       pm2 serve "$path/build" $port --name $pm2_script_name --spa
       is_serve_fail=$?
       pm2 save
-   elif [ $type -eq "static" ]
+   elif [ "$type" = "$static_type" ]
    then
       echo "Serving static files using pm2..."
       pm2_script_name="$name-s"
@@ -135,8 +137,7 @@ server {
       else 
          echo "NGINX config tests failed"
       fi
-      echo "Check http://$name.deploy.com"
-      is_nginx_fail=1
+      echo "Check http://$name.qdply.com"
    else 
       echo "pm2 serve failed"
       is_serve_fail=1
