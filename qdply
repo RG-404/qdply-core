@@ -60,7 +60,6 @@ fi
 cp $nginx_config_path $backup_path/qdploy-backup
 
 is_subdomain_available=1
-# is_port_available=1
 
 # checks if subdomain already in use
 subdomain_preexist=`cat $nginx_config_path \
