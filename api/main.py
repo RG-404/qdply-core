@@ -39,15 +39,19 @@ def upload_file():
                 os.path.basename(file.filename)))
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-            # shellOutput = os.system.command("")
-            # if shellOutput == 3:
-            #     data['message'] = "Subdomain already in use. Please enter a different unique name."
-            # elif shellOutput == 1:
-            #     data['message'] = "Serve process failed. Please try again."
+        folder = os.path.join(
+            app.config['UPLOAD_FOLDER'], os.path.dirname(files[0].filename))
+
+        print(f"running sudo ../qdply -n {projectName} -f {folder} -t {projectType}")
+        shellOutput = os.system(f"sudo ../qdply -n {projectName} -f  -t {projectType}")
+        if shellOutput == 3:
+            data['message'] = "Subdomain already in use. Please enter a different unique name."
+        elif shellOutput == 1:
+            data['message'] = "Serve process failed. Please try again."
 
         return render_template('uploaded.html', data=data)
 
-    serverNameList = getHostedServerNames("../nginx-config/qdply")
+    serverNameList = getHostedServerNames("/Users/rishi/projects/qdply-core/nginx-config/qdply")
     return render_template('index.html', data=serverNameList)
 
 
