@@ -28,3 +28,75 @@ server {
                proxy_pass http://localhost:3001;
       }
 }
+
+
+# Timestamp: 22/12/2022 11:15:07
+server {
+      listen 80;
+
+      server_name yoyo.qdply.com;
+
+      location / {
+               proxy_set_header Upgrade $http_upgrade;
+               proxy_set_header Connection 'upgrade';
+               proxy_set_header Host $host;
+               proxy_set_header X-Real-IP $remote_addr;
+               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+               proxy_set_header X-Forwarded-Proto $scheme;
+               proxy_pass http://localhost:3002;
+      }
+}
+
+
+# Timestamp: 22/12/2022 11:39:18
+server {
+      listen 80;
+
+      server_name react-build-test.qdply.com;
+
+      location / {
+               proxy_set_header Upgrade $http_upgrade;
+               proxy_set_header Connection 'upgrade';
+               proxy_set_header Host $host;
+               proxy_set_header X-Real-IP $remote_addr;
+               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+               proxy_set_header X-Forwarded-Proto $scheme;
+               proxy_pass http://localhost:3003;
+      }
+}
+
+
+# Timestamp: 22/12/2022 11:41:04
+server {
+      listen 80;
+
+      server_name open-example.qdply.com;
+
+      location / {
+               proxy_set_header Upgrade $http_upgrade;
+               proxy_set_header Connection 'upgrade';
+               proxy_set_header Host $host;
+               proxy_set_header X-Real-IP $remote_addr;
+               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+               proxy_set_header X-Forwarded-Proto $scheme;
+               proxy_pass http://localhost:3004;
+      }
+}
+
+
+# Timestamp: 22/12/2022 11:42:10
+server {
+      listen 80;
+
+      server_name open-react.qdply.com;
+
+      location / {
+               proxy_set_header Upgrade $http_upgrade;
+               proxy_set_header Connection 'upgrade';
+               proxy_set_header Host $host;
+               proxy_set_header X-Real-IP $remote_addr;
+               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+               proxy_set_header X-Forwarded-Proto $scheme;
+               proxy_pass http://localhost:3005;
+      }
+}

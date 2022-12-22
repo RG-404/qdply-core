@@ -20,6 +20,16 @@ def getHostedServerNames(filePath):
                           for serverName in serverNameList]
         return serverNameList
 
+def getTimeStamp(filePath):
+    filepath = filePath
+    with open(filepath) as file:
+        fileContent = file.read()
+        timeStampList = re.findall(
+            r"(Timestamp:.*\/*\/*)", fileContent)
+        timeStampList = [(" ").join(timestamp.split(" ")[1:])
+                          for timestamp in timeStampList]
+        return timeStampList
+
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -33,8 +43,10 @@ def upload_file():
         for file in files:
             path = os.path.dirname(file.filename)
             path2 = os.path.join(app.config['UPLOAD_FOLDER'], path)
+            print(path2)
             if not os.path.exists(path2):
-                os.mkdir(path2)
+                # os.mkdir(path2)
+                os.makedirs(path2)
             filename = os.path.join(path, secure_filename(
                 os.path.basename(file.filename)))
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -55,8 +67,9 @@ def upload_file():
 
         return render_template('uploaded.html', data=data)
 
-    serverNameList = getHostedServerNames("/etc/nginx/sites-available/qdply")
-    return render_template('index.html', data=serverNameList)
+    serverNameList = getHostedServerNames("/Users/rishi/projects/qdply-core/nginx-config/qdply")
+    timeStampList = getTimeStamp("/Users/rishi/projects/qdply-core/nginx-config/qdply")
+    return render_template('index.html', data=serverNameList, timestamp=timeStampList)
 
 
 if __name__ == '__main__':
